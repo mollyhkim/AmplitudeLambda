@@ -7,7 +7,7 @@ Status quo: Tala's Android events were logged in Amplitude, but not server-side.
 
 Project objective : write a AWS Lambda that reads server-side (Comandante) info from Kinesis and creates
                             a corresponding HTTP POST request to Amplitude.
-                            
+
 ![Process Diagram](https://docs.aws.amazon.com/lambda/latest/dg/images/kinesis-pull-10.png)
 
 ##### Amplitude EVENT vs IDENTIFICATION
