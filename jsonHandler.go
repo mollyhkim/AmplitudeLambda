@@ -32,7 +32,7 @@ func createEventJson(inputJson jsonInfo) string { // so far these are events so 
 	}
 
 	var newJson string
-	// check fo EVENT TYPE
+	// check for EVENT TYPE
 	eventType := inputJson.Event_type
 	switch eventType {
 	case FACEBOOK_CONNECT, FACEBOOK_LOGIN:
