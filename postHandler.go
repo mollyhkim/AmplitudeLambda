@@ -17,30 +17,6 @@ func postEvent(jsonStr string) {
 	sendPost("event", "/httpapi", jsonStr)
 }
 
-/* TODO: Create a custom Status error type and integrate with Lambda
- */
-// Error has methods for HTTP status codes, embeds built-in error interface
-type Error interface {
-	error
-	Status() int
-}
-
-// Error with an HTTP status code
-type StatusError struct {
-	Code int
-	Err error
-}
-
-// Retrieve the http error from a StatusError
-func (s StatusError) Error() string {
-	return s.Err.error
-}
-
-// Return http code from a StatusError
-func (s StatusError) Status() int{
-	return s.code
-}
-
 // make HTTP post -- find API key in Amplitude project settings
 func sendPost(postType string, urlPath string, jsonStr string) {
 	var fullUrl = amplitudeUrlHost + urlPath
@@ -62,8 +38,14 @@ func sendPost(postType string, urlPath string, jsonStr string) {
  */
 	client := &http.Client{}
 	resp, err := client.Do(req)
-	if err != nil {
-		panic(err)
+	if resp.StatusCode != 200 {
+		switch e := resp.StatusCode {
+		case 400:
+			log.Print("Malformed JSON error")
+			return nil
+		default:
+			return err
+		}
 	}
 	defer resp.Body.Close()
 
