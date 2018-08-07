@@ -35,31 +35,34 @@ func sendPost(postType string, urlPath string, jsonStr string) {
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
+	defer resp.Body.Close()
+
 	// Non-2XX response does not cause an error. Error returned if too many redirects or HTTP protocol error.
 	// (see article)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		return err
 	}
+
+	log.Debug("response Status:", resp.Status)
+	log.Debug("response Headers:", resp.Header)
+
 	// Handle individual categories of responses
 	// TODO: Handle other 4XX (non-400) codes?
-	if resp.StatusCode != 200 {
-		switch e := resp.StatusCode {
+	switch e := resp.StatusCode {
+	case 200:
+
+	// we need to be careful about how we use ioutil.ReadAll, because of memory constraints
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println("response Body:", string(body))	
 		case 400:
-			log.Print("Malformed JSON error")
+			log.Error("Malformed JSON error")
 			// move along
 			return nil
 		case 500 <= e && e <= 511:
 			// e.g. Amp down (network error)
-			return errors.New("Server-side error")
+			return errors.New("Amplitude 500 Error: %s", string(resp.Body))
 		default:
-			return errors.New("HTTP Error %d. %s", e, resp)
+			return errors.New("Unknown Error %d. %s", e, resp)
 		}
-	}
-	defer resp.Body.Close()
-
-	fmt.Println("response Status:", resp.Status)
-	fmt.Println("response Headers:", resp.Header)
-	// we need to be careful about how we use ioutil.ReadAll, because of memory constraints
-	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))
 }
