@@ -47,17 +47,15 @@ func sendPost(postType string, urlPath string, jsonStr string) {
 	log.Debug("response Status:", resp.Status)
 	log.Debug("response Headers:", resp.Header)
 
-	// Handle individual categories of responses
-	// TODO: Handle other 4XX (non-400) codes?
+	// Handle each categories of responses
 	switch e := resp.StatusCode {
-	case 200:
-
-	// we need to be careful about how we use ioutil.ReadAll, because of memory constraints
-	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println("response Body:", string(body))	
+		case 200:
+			// we need to be careful about how we use ioutil.ReadAll, because of memory constraints
+			body, _ := ioutil.ReadAll(resp.Body)
+			fmt.Println("response Body:", string(body))	
 		case 400:
 			log.Error("Malformed JSON error")
-			// move along
+			// try the next one
 			return nil
 		case 500 <= e && e <= 511:
 			// e.g. Amp down (network error)
